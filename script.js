@@ -31,6 +31,16 @@ function getCategoryDisplay(rawCategoryText) {
     return text || "Uncategorized";
 }
 
+// Display-only shortening for the resource type badge.
+// The raw Google Sheet value is untouched — this only affects what's rendered.
+function getTypeDisplay(rawType) {
+    let text = (rawType || "").trim();
+    if (text.startsWith("💡 Advice / Tip")) {
+        return "💡 Advice / Tip";
+    }
+    return text || "📌 Resource";
+}
+
 Papa.parse(sheetURL, {
     download: true,
     header: true,
@@ -239,7 +249,7 @@ function showResources(resourceList, showCategoryTag = false) {
         let card = document.createElement("div");
         card.className = "resource-card";
 
-        let typeBadge = resource["What would you like to share?"]?.trim() || "📌 Resource";
+        let typeBadge = getTypeDisplay(resource["What would you like to share?"]);
         let title = resource["Title"] || "Untitled";
         let dateFormatted = formatDate(resource["Timestamp"]);
         let preview = truncateText(resource["Useful Link / Advice"] || "", previewLength);
@@ -304,7 +314,7 @@ function renderDetail(resource) {
     document.getElementById("detail-date").textContent = formatDate(resource["Timestamp"]);
 
     document.getElementById("detail-type-badge").textContent =
-        resource["What would you like to share?"]?.trim() || "📌 Resource";
+        getTypeDisplay(resource["What would you like to share?"]);
 
     document.getElementById("detail-category-badge").textContent =
         getCategoryDisplay(resource["Which category does it belong to?"]);
