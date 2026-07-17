@@ -103,6 +103,10 @@ function goHome() {
     window.history.back();
 }
 
+function goHomeDirect() {
+    window.location.hash = "";
+}
+
 function goBackToResources() {
     window.history.back();
 }
@@ -181,6 +185,8 @@ function renderCategoryList(category, isAll) {
         });
         currentShowCategoryTag = false;
     }
+
+    currentList = currentList.slice().sort((a, b) => new Date(b["Timestamp"]) - new Date(a["Timestamp"]));
 
     showResources(currentList, currentShowCategoryTag);
 }
