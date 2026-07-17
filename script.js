@@ -284,26 +284,51 @@ function sortResources(order) {
     showResources(currentList, currentShowCategoryTag);
 }
 
-// Splits advice text into a leading URL (if present) and the rest
+// Escapes HTML special characters so contributor text can't break the page
+function escapeHTML(str) {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+}
+
+// Turns any http(s) URL in a string into a clickable link, keeping the full URL visible
+function linkify(text) {
+    return text.replace(/(https?:\/\/\S+)/g, url =>
+        `<a href="${url}" target="_blank" rel="noopener">${url}</a>`
+    );
+}
+
+// Converts contributor plain text into HTML:
+// - blank lines separate paragraphs
+// - single line breaks within a paragraph become <br>
+// - consecutive lines starting with -, •, or * become a bullet list
+// - any URL anywhere becomes a clickable link
 function renderContent(rawText) {
     if (!rawText) return "<p>No details provided.</p>";
 
-    let text = rawText.trim();
-    let urlPattern = /^(https?:\/\/\S+)/;
-    let match = text.match(urlPattern);
+    let normalized = rawText.replace(/\r\n/g, "\n").trim();
+    let blocks = normalized.split(/\n\s*\n+/);
 
-    if (match) {
-        let url = match[1];
-        let remaining = text.slice(url.length).trim();
+    let html = blocks.map(block => {
+        let lines = block.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+        if (lines.length === 0) return "";
 
-        let html = `<p><a href="${url}" target="_blank" rel="noopener">${url}</a></p>`;
-        if (remaining) {
-            html += `<p>${remaining}</p>`;
+        let isList = lines.every(l => /^[-•*]\s+/.test(l));
+
+        if (isList) {
+            let items = lines.map(l => {
+                let itemText = l.replace(/^[-•*]\s+/, "");
+                return `<li>${linkify(escapeHTML(itemText))}</li>`;
+            }).join("");
+            return `<ul>${items}</ul>`;
         }
-        return html;
-    }
 
-    return `<p>${text}</p>`;
+        let paragraphHTML = lines.map(l => linkify(escapeHTML(l))).join("<br>");
+        return `<p>${paragraphHTML}</p>`;
+    }).join("");
+
+    return html || "<p>No details provided.</p>";
 }
 
 function renderDetail(resource) {
