@@ -275,6 +275,7 @@ button:active {
     box-shadow: var(--shadow-soft);
     cursor: pointer;
     transition: transform 0.15s ease, box-shadow 0.15s ease;
+    overflow-wrap: anywhere;
 }
 
 .resource-card:hover {
@@ -316,6 +317,8 @@ button:active {
     font-size: 14px;
     color: var(--color-text-muted);
     margin: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 /* Empty state */
