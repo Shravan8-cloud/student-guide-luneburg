@@ -70,7 +70,10 @@
 
 <div id="resource-page" class="hidden">
 
-    <button class="back-button" onclick="goHome()">← Back</button>
+    <div class="page-nav">
+        <button class="back-button" onclick="goHome()">← Back</button>
+        <button class="back-button" onclick="goHomeDirect()">🏠 Home</button>
+    </div>
 
     <h1 id="page-title"></h1>
 
@@ -86,7 +89,10 @@
 
 <div id="detail-page" class="hidden">
 
-    <button class="back-button" onclick="goBackToResources()">← Back</button>
+    <div class="page-nav">
+        <button class="back-button" onclick="goBackToResources()">← Back</button>
+        <button class="back-button" onclick="goHomeDirect()">🏠 Home</button>
+    </div>
 
     <h1 id="detail-title"></h1>
 
