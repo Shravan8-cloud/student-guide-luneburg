@@ -411,6 +411,19 @@ button:active {
     margin-bottom: 0;
 }
 
+.detail-content ul {
+    margin: 0 0 10px 0;
+    padding-left: 22px;
+}
+
+.detail-content ul:last-child {
+    margin-bottom: 0;
+}
+
+.detail-content li {
+    margin-bottom: 4px;
+}
+
 .detail-footer {
     margin-top: 22px;
     padding-top: 16px;
