@@ -50,8 +50,9 @@ Papa.parse(sheetURL, {
         dataLoaded = true;
 
         if (pendingAction) {
-            pendingAction();
+            let action = pendingAction;
             pendingAction = null;
+            action();
         }
     },
     error: function (err) {
@@ -61,25 +62,18 @@ Papa.parse(sheetURL, {
     }
 });
 
+// ---------- Public navigation actions (called from onclick) ----------
+// These only update the URL hash. The hashchange listener does the
+// actual rendering, so on-screen navigation and the browser's own
+// Back/Forward buttons behave identically.
+
 function openCategory(category) {
     if (!dataLoaded) {
         pendingAction = () => openCategory(category);
         showLoadingState(category);
         return;
     }
-
-    document.getElementById("home-page").classList.add("hidden");
-    document.getElementById("detail-page").classList.add("hidden");
-    document.getElementById("resource-page").classList.remove("hidden");
-    document.getElementById("page-title").textContent = getCategoryDisplay(category);
-
-    currentList = resources.filter(resource => {
-        let sheetCategory = resource["Which category does it belong to?"]?.trim() || "";
-        return sheetCategory.includes(category);
-    });
-
-    currentShowCategoryTag = false;
-    showResources(currentList, currentShowCategoryTag);
+    window.location.hash = "category/" + encodeURIComponent(category);
 }
 
 function showAllResources() {
@@ -88,15 +82,109 @@ function showAllResources() {
         showLoadingState("All Resources");
         return;
     }
+    window.location.hash = "all";
+}
 
+function showDetail(resource) {
+    let id = (resource["Resource ID"] || "").trim();
+    window.location.hash = "resource/" + encodeURIComponent(id);
+}
+
+function goHome() {
+    window.history.back();
+}
+
+function goBackToResources() {
+    window.history.back();
+}
+
+// ---------- Hash routing ----------
+
+function handleHashChange() {
+    let hash = window.location.hash.replace(/^#/, "");
+
+    if (hash === "") {
+        renderHome();
+        return;
+    }
+
+    if (hash === "all") {
+        if (!dataLoaded) {
+            pendingAction = handleHashChange;
+            showLoadingState("All Resources");
+            return;
+        }
+        renderCategoryList(null, true);
+        return;
+    }
+
+    let categoryMatch = hash.match(/^category\/(.+)$/);
+    if (categoryMatch) {
+        let category = decodeURIComponent(categoryMatch[1]);
+        if (!dataLoaded) {
+            pendingAction = handleHashChange;
+            showLoadingState(category);
+            return;
+        }
+        renderCategoryList(category, false);
+        return;
+    }
+
+    let resourceMatch = hash.match(/^resource\/(.+)$/);
+    if (resourceMatch) {
+        let resourceId = decodeURIComponent(resourceMatch[1]);
+        if (!dataLoaded) {
+            pendingAction = handleHashChange;
+            return;
+        }
+        renderDetailById(resourceId);
+        return;
+    }
+
+    renderHome();
+}
+
+window.addEventListener("hashchange", handleHashChange);
+window.addEventListener("DOMContentLoaded", handleHashChange);
+
+// ---------- Rendering ----------
+
+function renderHome() {
+    document.getElementById("resource-page").classList.add("hidden");
+    document.getElementById("detail-page").classList.add("hidden");
+    document.getElementById("home-page").classList.remove("hidden");
+}
+
+function renderCategoryList(category, isAll) {
     document.getElementById("home-page").classList.add("hidden");
     document.getElementById("detail-page").classList.add("hidden");
     document.getElementById("resource-page").classList.remove("hidden");
-    document.getElementById("page-title").textContent = "All Resources";
 
-    currentList = resources.slice();
-    currentShowCategoryTag = true;
+    if (isAll) {
+        document.getElementById("page-title").textContent = "All Resources";
+        currentList = resources.slice();
+        currentShowCategoryTag = true;
+    } else {
+        document.getElementById("page-title").textContent = getCategoryDisplay(category);
+        currentList = resources.filter(resource => {
+            let sheetCategory = resource["Which category does it belong to?"]?.trim() || "";
+            return sheetCategory.includes(category);
+        });
+        currentShowCategoryTag = false;
+    }
+
     showResources(currentList, currentShowCategoryTag);
+}
+
+function renderDetailById(resourceId) {
+    let resource = resources.find(r => (r["Resource ID"] || "").trim() === resourceId);
+
+    if (!resource) {
+        renderHome();
+        return;
+    }
+
+    renderDetail(resource);
 }
 
 function showLoadingState(title) {
@@ -125,6 +213,11 @@ function truncateText(text, maxLength) {
     return text.slice(0, maxLength).trim() + "...";
 }
 
+// Shorter preview on mobile screens, unchanged on desktop
+function getPreviewMaxLength() {
+    return window.matchMedia("(max-width: 600px)").matches ? 70 : 140;
+}
+
 function showResources(resourceList, showCategoryTag = false) {
     let container = document.getElementById("resource-list");
     container.innerHTML = "";
@@ -141,6 +234,8 @@ function showResources(resourceList, showCategoryTag = false) {
         return;
     }
 
+    let previewLength = getPreviewMaxLength();
+
     resourceList.forEach(resource => {
         let card = document.createElement("div");
         card.className = "resource-card";
@@ -148,7 +243,7 @@ function showResources(resourceList, showCategoryTag = false) {
         let typeBadge = resource["What would you like to share?"]?.trim() || "📌 Resource";
         let title = resource["Title"] || "Untitled";
         let dateFormatted = formatDate(resource["Timestamp"]);
-        let preview = truncateText(resource["Useful Link / Advice"] || "", 140);
+        let preview = truncateText(resource["Useful Link / Advice"] || "", previewLength);
 
         let categoryBadgeHTML = "";
         if (showCategoryTag) {
@@ -202,7 +297,7 @@ function renderContent(rawText) {
     return `<p>${text}</p>`;
 }
 
-function showDetail(resource) {
+function renderDetail(resource) {
     document.getElementById("resource-page").classList.add("hidden");
     document.getElementById("detail-page").classList.remove("hidden");
 
@@ -225,18 +320,7 @@ function showDetail(resource) {
         "Resource ID: " + (resource["Resource ID"] || "N/A");
 }
 
-function goHome() {
-    document.getElementById("resource-page").classList.add("hidden");
-    document.getElementById("detail-page").classList.add("hidden");
-    document.getElementById("home-page").classList.remove("hidden");
-}
-
-function goBackToResources() {
-    document.getElementById("detail-page").classList.add("hidden");
-    document.getElementById("resource-page").classList.remove("hidden");
-}
-
-// Theme handling
+// ---------- Theme handling (unchanged) ----------
 
 function applyThemeIcon(theme) {
     let toggleBtn = document.getElementById("theme-toggle");
@@ -254,7 +338,6 @@ function toggleTheme() {
     applyThemeIcon(next);
 }
 
-// Set correct icon on initial load (theme itself is already applied via inline head script)
 document.addEventListener("DOMContentLoaded", () => {
     let currentTheme = document.documentElement.getAttribute("data-theme") || "light";
     applyThemeIcon(currentTheme);
