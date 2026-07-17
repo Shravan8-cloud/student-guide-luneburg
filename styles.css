@@ -133,6 +133,12 @@ h2 {
     margin-top: 16px;
 }
 
+.category-grid button:last-child {
+    grid-column: 1 / -1;
+    justify-self: center;
+    width: calc(50% - 6px);
+}
+
 button {
     padding: 14px 16px;
     border: none;
@@ -429,6 +435,10 @@ button:active {
 @media (max-width: 600px) {
     .category-grid {
         grid-template-columns: 1fr;
+    }
+
+    .category-grid button:last-child {
+        width: 100%;
     }
 
     body {
