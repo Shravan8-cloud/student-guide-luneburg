@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Student Guide to Lüneburg</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <script>
+        // Apply saved theme immediately, before CSS paints, to avoid a flash
+        (function () {
+            var savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        })();
+    </script>
+</head>
+
+<body>
+
+<button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle dark mode">🌙</button>
+
+<div id="home-page">
+
+    <h1>🧭 The Student Guide to Lüneburg</h1>
+
+    <p class="subtitle">
+        A community-built library of advice, useful links and student experiences
+        to help incoming students settle into Lüneburg and study at Leuphana University.
+    </p>
+
+    <div class="disclaimer">
+        <h2>Disclaimer</h2>
+        <p>
+            This is a community-driven resource page created by students for students.
+            Information is reviewed before publishing, but details may change over time.
+            Always verify important legal, financial, insurance, and university information
+            through official sources.
+        </p>
+    </div>
+
+    <button class="browse-button" onclick="showAllResources()">
+        📚 Browse All Resources
+    </button>
+
+    <h2>Browse by Category</h2>
+
+    <div class="category-grid">
+
+        <button onclick="openCategory('Accommodation')">🏠 Accommodation</button>
+        <button onclick="openCategory('Communication Groups')">💬 Communication Groups</button>
+        <button onclick="openCategory('University')">🎓 University</button>
+        <button onclick="openCategory('Bureaucracy')">🏛 Bureaucracy</button>
+        <button onclick="openCategory('Transport')">🚌 Transport</button>
+        <button onclick="openCategory('Banking, Insurance & Bureaucracy')">🏦 Banking, Insurance & Bureaucracy</button>
+        <button onclick="openCategory('Food & Shopping')">🥗 Food & Shopping</button>
+        <button onclick="openCategory('Jobs & Careers')">💼 Jobs & Careers</button>
+        <button onclick="openCategory('Services')">🛠️ Services (Mobile Plans, Internet, Gyms, Student Discounts)</button>
+        <button onclick="openCategory('Other')">📦 Other</button>
+
+    </div>
+
+    <a class="contribute-button" href="https://forms.gle/LGiA22iRvH5nEtfF7" target="_blank" rel="noopener">
+        ➕ Contribute a Resource
+    </a>
+
+</div>
+
+
+<div id="resource-page" class="hidden">
+
+    <button class="back-button" onclick="goHome()">← Back</button>
+
+    <h1 id="page-title"></h1>
+
+    <div class="sort-controls">
+        <button onclick="sortResources('newest')">Newest First</button>
+        <button onclick="sortResources('oldest')">Oldest First</button>
+    </div>
+
+    <div id="resource-list"></div>
+
+</div>
+
+
+<div id="detail-page" class="hidden">
+
+    <button class="back-button" onclick="goBackToResources()">← Back</button>
+
+    <h1 id="detail-title"></h1>
+
+    <p id="detail-date" class="detail-date"></p>
+
+    <div class="badge-row">
+        <span id="detail-type-badge" class="badge badge-type"></span>
+        <span id="detail-category-badge" class="badge badge-category"></span>
+    </div>
+
+    <div id="detail-content" class="detail-content"></div>
+
+    <div class="detail-footer">
+        <p id="detail-user"></p>
+        <p id="detail-id" class="detail-id"></p>
+    </div>
+
+    <a class="contribute-button detail-contribute" href="https://forms.gle/LGiA22iRvH5nEtfF7" target="_blank" rel="noopener">
+        ➕ Contribute a Resource
+    </a>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<script src="script.js"></script>
+
+</body>
+
+</html>
