@@ -234,6 +234,12 @@ button:active {
     margin-top: 28px;
 }
 
+.page-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
 .back-button {
     background: var(--color-card);
     color: var(--color-primary);
